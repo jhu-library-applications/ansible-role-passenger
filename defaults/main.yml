@@ -1,2 +1,3 @@
 ---
-# defaults file for passenger
+passenger_update_packages:    "{{ update_packages | default(false) }}"
+ansible_likes_passenger_repo: false
