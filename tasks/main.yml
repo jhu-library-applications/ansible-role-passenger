@@ -1,4 +1,7 @@
 ---
+- name: include os-specific vars
+  include_vars: "{{ansible_os_family}}.yml"
+
 - name: update packages or nah
   set_fact:
     package_state: "latest"
@@ -67,6 +70,7 @@
     notify: restart apache
     become: true
 
+  # TODO: add reinstall (avoidance) mechanism
   when: not ansible_likes_passenger_repo
 
 - name: flush handlers (e.g. restart apache) before running tests
@@ -98,3 +102,7 @@
   assert:
     that: "'Passenger core' in passenger_memory_stats_result.stdout"
     msg:  "passenger core process not found in passenger memory stats: {{ passenger_memory_stats_result.stdout }}"
+
+- name: configure passenger for a rails deployment
+  include: deploy_rails.yml
+  when: passenger_deploy_rails
