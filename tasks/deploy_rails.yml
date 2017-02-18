@@ -2,6 +2,7 @@
 - name: get ruby interpreter info
   command: "passenger-config about ruby-command"
   register: ruby_interpreter_result
+  changed_when: false
 
   # NOTE: when a group argument is provided, regex_search returns an array of matches,
   # so we have to use [0] to get the first, even if there's only one
