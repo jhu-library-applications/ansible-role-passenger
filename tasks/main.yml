@@ -2,12 +2,14 @@
 - name: include os-specific vars
   include_vars: "{{ansible_os_family}}.yml"
 
-- name: update packages or nah
+- name: update packages &/or repo
   set_fact:
-    package_state: "latest"
+    package_state:  "latest"
+    created_repo:   "/nonexistent/path/to/subvert/creates/argument"
   when: passenger_update_packages
 - set_fact:
     package_state: "present"
+    created_repo:  "/etc/yum.repos.d/passenger.repo"
   when: not passenger_update_packages
 
 - name: install epel repo - CentOS
@@ -58,15 +60,21 @@
 - block:
   - name: simply add phusion passenger repo
     command: "curl --fail -sSLo /etc/yum.repos.d/passenger.repo https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo"
+    args:
+      creates: "{{ created_repo }}"
     become: true
 
   - name: update yum
     command: "yum update -y"
+    register: result
+    changed_when: "'No packages marked for update' not in result.stdout"
     when: passenger_update_packages
     become: true
 
   - name: simply install passenger
     command: yum -y install mod_passenger
+    register: result
+    changed_when: "'already installed and latest version' not in result.stdout"
     notify: restart apache
     become: true
 
