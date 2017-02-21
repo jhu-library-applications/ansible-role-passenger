@@ -2,6 +2,10 @@
   DocumentRoot {{ passenger_deploy_dir }}/public
 
   PassengerRuby {{ ruby_interpreter }}
+  PassengerAppEnv {{ passenger_app_environment }}
+  {% if passenger_app_environment not 'production' %}
+  PassengerFriendlyErrorPages on
+  {% endif %}
 
   # Relax Apache security settings
   <Directory {{ passenger_deploy_dir }}/public>

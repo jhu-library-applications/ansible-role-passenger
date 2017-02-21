@@ -27,10 +27,11 @@
 - set_fact:
     apache_version: "{{ apache_version_matches[0] }}"
 
+  # TODO: apply something a little more nuanced than hardcoding "01_" prefix
 - name: insert passenger-specific configs into virtualhost config
   blockinfile:
     block:  "{{ lookup('template', 'passenger_virtualhost.j2') }}"
-    dest: "/etc/{{ apache_service }}/conf.d/{{ passenger_hostname }}.conf"
+    dest: "/etc/{{ apache_service }}/conf.d/01_{{ passenger_hostname }}.conf"
     marker: "# {mark} passenger configs"
     insertbefore: "</VirtualHost>"
   notify: restart apache
