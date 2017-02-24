@@ -3,9 +3,12 @@
 
   PassengerRuby {{ ruby_interpreter }}
   PassengerAppEnv {{ passenger_app_environment }}
-  {% if passenger_app_environment not 'production' %}
+  PassengerDefaultUser {{ passenger_app_user }}
+  PassengerDefaultGroup {{ passenger_app_user }}
+  # TODO: for the sake of stage, pin this on something else:
+  # if passenger_app_environment != 'production'
   PassengerFriendlyErrorPages on
-  {% endif %}
+  # endif
 
   # Relax Apache security settings
   <Directory {{ passenger_deploy_dir }}/public>
