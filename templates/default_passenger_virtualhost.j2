@@ -5,19 +5,18 @@
   PassengerAppEnv {{ passenger_app_environment }}
   PassengerDefaultUser {{ passenger_app_user }}
   PassengerDefaultGroup {{ passenger_app_user }}
-  # TODO: for the sake of stage, pin this on something else:
-  # if passenger_app_environment != 'production'
+{% if passenger_debugging %}
   PassengerFriendlyErrorPages on
-  # endif
+{% endif %}
 
   # Relax Apache security settings
   <Directory {{ passenger_deploy_dir }}/public>
     Allow from all
     Options -MultiViews
-  {% if apache_version | version_compare('2.4', '>=') %}
+{% if apache_version | version_compare('2.4', '>=') %}
     # Uncomment this if you're on Apache >= 2.4:
     Require all granted
-  {% endif %}
+{% endif %}
   </Directory>
 
   # no idea why this is needed, but apparently it is:
