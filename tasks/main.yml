@@ -85,7 +85,7 @@
   meta: flush_handlers
 
 - name: validate passenger install
-  command: "/usr/bin/passenger-config validate-install"
+  command: "/usr/bin/passenger-config validate-install --auto"
   register: validate_install_result
   changed_when: false
 
