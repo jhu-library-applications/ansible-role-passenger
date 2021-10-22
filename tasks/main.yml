@@ -2,31 +2,31 @@
 - name: include os-specific vars
   include_vars: "{{ansible_os_family}}.yml"
 
-- name: update packages &/or repo
+- name: "update package flag"
   set_fact:
     package_state:  "latest"
-    created_repo:   "/nonexistent/path/to/subvert/creates/argument"
   when: passenger_update_packages
+
 - set_fact:
     package_state: "present"
-    created_repo:  "/etc/yum.repos.d/passenger.repo"
   when: not passenger_update_packages
 
-- name: install epel repo on CentOS
+- name: "install epel repo"
   ansible.builtin.yum:
     name: epel-release
     state: present
   when: ansible_os_family == 'RedHat'
 
-- name: install prereqs
+- name: "install prereqs"
   package:
     name: "{{ item }}"
     state: "{{ package_state }}"
   with_items:
     - pygpgme
     - curl
+    - httpd-devel
 
-- name: Add el7 yum repo
+- name: "Add EL7 yum repo for Phusion Passenger"
   yum_repository:
     name: passenger
     description: "Phusion Passenger Repository"
@@ -43,10 +43,10 @@
     name: mod_passenger
     state: "{{ package_state }}"
 
-- name: force start apache
+- name: Restart apache
   ansible.builtin.service:
     name: httpd
-    state: started
+    state: restarted
 
 - name: validate passenger install
   command: "/usr/bin/passenger-config validate-install --auto"
