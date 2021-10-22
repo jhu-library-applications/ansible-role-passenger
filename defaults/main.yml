@@ -1,16 +1,12 @@
 ---
-# FIXME: can this go away yet?
-ansible_likes_passenger_repo:     false
-
 passenger_update_packages:        "{{ update_packages | default(false) }}"
 passenger_deploy_rails:           true
 passenger_app_name:               "{{ app_name | default('myapp') }}"
 passenger_app_user:               "{{ app_user | default(passenger_app_name) }}"
 passenger_base_deploy_dir:        "{{ base_deploy_dir | default('/opt') }}"
 passenger_deploy_dir:             "{{ passenger_base_deploy_dir }}/{{ passenger_app_name }}"
-passenger_hostname:               "{{ hostname | default('myapp') }}"
 passenger_app_environment:        "{{ rails_env | default('production') }}"
 passenger_debugging:              "{{ debugging | default(false) }}"
 # NOTE: to successfully override this template, you MUST use a template file with a different name. now you know...
 passenger_virtualhost_template:   "default_passenger_virtualhost.j2"
-apache_config_file:               "/etc/{{ apache_service }}/conf.d/01_{{ passenger_hostname }}.conf"
+apache_config_file:               "/etc/{{ apache_service }}/conf.d/01_{{ passenger_app_name }}.conf"

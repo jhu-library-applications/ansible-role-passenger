@@ -33,5 +33,4 @@
     dest: "{{ apache_config_file }}"
     marker: "# {mark} passenger configs"
     insertbefore: "</VirtualHost>"
-  notify: restart apache
-  become: true
+      #  notify: restart apache

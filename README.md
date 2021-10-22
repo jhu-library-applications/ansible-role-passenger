@@ -17,10 +17,6 @@ Apache HTTP Server. Nginx could also be used, but it is not currently supported 
 Role Variables
 --------------
 
-I couldn't get ansible's yum modules to work with phusion's repo and eventually just used the command module. This flag is used to control the flow from what should work to what does. The hope is that the issue might someday be resolved and we can just do things the "right" way.
-
-    ansible_likes_passenger_repo:     false
-
 Other variables that require much less explanation:
 
     passenger_update_packages:        "{{ update_packages | default(false) }}"
