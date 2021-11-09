@@ -1,7 +1,7 @@
   # Tell Apache and Passenger where your app's 'public' directory is
   DocumentRoot {{ passenger_deploy_dir }}/public
 
-  PassengerRuby {{ ruby_interpreter }}
+  PassengerRuby /opt/rubies/{{ chruby_ruby_version }}/bin/ruby
   PassengerAppEnv {{ passenger_app_environment }}
   PassengerDefaultUser {{ passenger_app_user }}
   PassengerDefaultGroup {{ passenger_app_user }}
