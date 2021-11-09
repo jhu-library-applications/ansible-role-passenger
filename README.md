@@ -42,8 +42,9 @@ Example Playbook
 
     - hosts: servers
       roles:
-         - { role: apache }
-         - { role: passenger }
+         - { role: apache,    become: true }
+         - { role: chruby,    become: true }
+         - { role: passenger, become: true }
 
 License
 -------
@@ -53,4 +54,3 @@ CC0
 Author Information
 ------------------
 
-Drew Heles
