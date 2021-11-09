@@ -14,10 +14,10 @@ Requirements
 
 Apache HTTP Server. Nginx could also be used, but it is not currently supported by this role.
 
+Note that the template, `default_passenger_virtualhost.j2` contains a variable `chruby_ruby_version` that must be set in advance. In our use of this role, the `chruby_ruby_version` variable is set by the `ansible-role-chruby` role which must be run prior.
+
 Role Variables
 --------------
-
-Other variables that require much less explanation:
 
     passenger_update_packages:        "{{ update_packages | default(false) }}"
     passenger_deploy_rails:           true
