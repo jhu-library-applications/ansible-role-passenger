@@ -2,22 +2,22 @@
 - name: include os-specific vars
   include_vars: "{{ansible_os_family}}.yml"
 
-- name: update packages &/or repo
+- name: "update package flag"
   set_fact:
     package_state:  "latest"
-    created_repo:   "/nonexistent/path/to/subvert/creates/argument"
   when: passenger_update_packages
+
 - set_fact:
     package_state: "present"
-    created_repo:  "/etc/yum.repos.d/passenger.repo"
   when: not passenger_update_packages
 
-- name: install epel repo - CentOS
-  yum: name=epel-release state=present
+- name: "install epel repo"
+  ansible.builtin.yum:
+    name: epel-release
+    state: present
   when: ansible_os_family == 'RedHat'
-  become: true
 
-- name: install prereqs
+- name: "install prereqs"
   package:
     name: "{{ item }}"
     state: "{{ package_state }}"
@@ -25,64 +25,28 @@
     - pygpgme
     - curl
     - httpd-devel
-  become: true
 
-  # NOTE: what should work:
-- block:
-  - name: add phusion's passenger repo - CentOS
-    yum_repository:
-      name: passenger
-      description: "phusion passenger repo"
-      baseurl: https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo
-      # gpgkey: https://oss-binaries.phusionpassenger.com/yum/definitions/RPM-GPG-KEY.asc
-      gpgcheck: no
-      enabled: yes
-    when: ansible_os_family == 'RedHat'
-    become: true
+- name: "Add EL7 yum repo for Phusion Passenger"
+  yum_repository:
+    name: passenger
+    description: "Phusion Passenger Repository"
+    baseurl: https://oss-binaries.phusionpassenger.com/yum/passenger/el/$releasever/$basearch
+    gpgkey: https://oss-binaries.phusionpassenger.com/auto-software-signing-gpg-key.txt
+    repo_gpgcheck: true
+    gpgcheck: false
+    enabled: true
+    sslverify: true
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
 
-    # NOTE: failed attempt to resolve issue:
-  # - name: update repo cache for the new repo
-  #   command: yum -q makecache -y --disablerepo=* --enablerepo=passenger
+- name: install passenger + apache module
+  ansible.builtin.yum:
+    name: mod_passenger
+    state: "{{ package_state }}"
 
-  - name: install passenger + apache module
-    yum:
-      name: mod_passenger
-      enablerepo: passenger
-      state: "{{ package_state }}"
-      disable_gpg_check: true
-    notify: restart apache
-    become: true
-
-  when: ansible_likes_passenger_repo
-
-  # NOTE: what does work:
-  # NOTE: here "simply" is to be understood to mean, "in a manner as unsophisticated and un-ansible-idiomatic as possible"
-- block:
-  - name: simply add phusion passenger repo
-    command: "curl --fail -sSLo /etc/yum.repos.d/passenger.repo https://oss-binaries.phusionpassenger.com/yum/definitions/el-passenger.repo"
-    args:
-      creates: "{{ created_repo }}"
-    become: true
-
-  - name: update yum
-    command: "yum update -y"
-    register: result
-    changed_when: "'No packages marked for update' not in result.stdout"
-    when: passenger_update_packages
-    become: true
-
-  - name: simply install passenger
-    command: yum -y install mod_passenger
-    register: result
-    changed_when: "'already installed and latest version' not in result.stdout"
-    notify: restart apache
-    become: true
-
-  # TODO: add reinstall (avoidance) mechanism
-  when: not ansible_likes_passenger_repo
-
-- name: flush handlers (e.g. restart apache) before running tests
-  meta: flush_handlers
+- name: Restart apache
+  ansible.builtin.service:
+    name: httpd
+    state: restarted
 
 - name: validate passenger install
   command: "/usr/bin/passenger-config validate-install --auto"

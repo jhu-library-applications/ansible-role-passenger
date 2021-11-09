@@ -1,29 +1,10 @@
 ---
-#- name: get ruby interpreter info
-#  command: "passenger-config about ruby-command"
-#  register: ruby_interpreter_result
-#  changed_when: false
-#
-#  # NOTE: when a group argument is provided, regex_search returns an array of matches,
-#  # so we have to use [0] to get the first, even if there's only one
-#- name: extract ruby interpreter path from result
-#  set_fact: ruby_interpreter_matches={{ ruby_interpreter_result.stdout | regex_search('Command:\s+(?P<path>.*)', '\\g<path>' ) }}
-#- set_fact:
-#    ruby_interpreter: "{{ ruby_interpreter_matches[0] }}"
-#
-#- name: test ruby_interpreter
-#  debug: var=ruby_interpreter
 
 - name: get apache version info
   ansible.builtin.shell: "{{ apache_service }} -v | grep 'Apache/' | cut -d/ -f2 | awk '{print $1}'"
   register: apache_version_result
   changed_when: false
 
-  # NOTE: searching a string like "Server version: Apache/2.4.6 (CentOS)""
-  # NOTE: when a group argument is provided, regex_search returns an array of matches,
-  # so we have to use [0] to get the first, even if there's only one
-#- name: extract apache version from result
-#set_fact: apache_version_matches={{ apache_version_result.stdout | regex_search('Apache/(?P<version>\d+\.\d+)', '\\g<version>' ) }}
 - set_fact:
     apache_version: "{{ apache_version_result.stdout }}"
 
@@ -34,4 +15,3 @@
     marker: "# {mark} passenger configs"
     insertbefore: "</VirtualHost>"
   notify: restart apache
-  become: true
